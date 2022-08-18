@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+require_once 'vendor/autoload.php';
+
+use App\DataFixtures\ProductFixtures;
+use App\EntityManagerBuilder;
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\Loader;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+
+$loader = new Loader();
+$loader->addFixture(new ProductFixtures());
+
+$executor = new ORMExecutor((new EntityManagerBuilder())->getEntityManager(), new ORMPurger());
+$executor->execute($loader->getFixtures());

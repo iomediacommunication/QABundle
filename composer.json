@@ -1,0 +1,45 @@
+{
+    "name": "iomedia/qa-pack",
+    "description": "Quality assurance base configuration for symfony projects",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sébastien Délèze",
+            "email": "sebastien.deleze@iomedia.ch"
+        }
+    ],
+    "require": {
+        "php": "*",
+        "doctrine/orm": "*",
+        "symfony/dotenv": "*",
+        "symfony/http-client": "*",
+        "phpunit/phpunit": "*",
+        "symfony/test-pack": "*",
+        "doctrine/doctrine-fixtures-bundle": "*",
+        "friendsofphp/php-cs-fixer": "*",
+        "phpstan/phpstan-symfony": "*",
+        "phpstan/phpstan-deprecation-rules": "*",
+        "phpstan/phpstan-doctrine": "*",
+        "dama/doctrine-test-bundle": "*",
+        "thibautselingue/local-php-security-checker-installer": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "Gebler\\SecurityHeadersBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "composer-validate": "composer validate --no-check-lock",
+        "composer-security": "./vendor/bin/local-php-security-checker-installer && ./vendor/bin/local-php-security-checker",
+        "php-cs-fixer": "./vendor/bin/php-cs-fixer fix --dry-run --config=.php-cs-fixer.dist.php",
+        "phpstan": "./vendor/bin/phpstan analyse --memory-limit 2G",
+        "phpunit": "./vendor/bin/phpunit --stop-on-failure"
+    }
+}

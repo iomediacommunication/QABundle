@@ -1,0 +1,2 @@
+ARG VERSION=5.7
+FROM mysql:${VERSION}

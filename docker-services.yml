@@ -1,0 +1,40 @@
+services:
+    db:
+        container_name: ${PROJECT_NAME}-db
+        build:
+            context: .docker/db
+            args:
+                VERSION: 5.7
+        restart: 'unless-stopped'
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            - MYSQL_DATABASE
+            - MYSQL_USER
+            - MYSQL_PASSWORD
+            - MYSQL_ROOT_PASSWORD
+        ports:
+            - '3306:3306'
+    es:
+        container_name: ${PROJECT_NAME}-es
+        build:
+            context: .docker/elasticsearch
+            args:
+                VERSION: 7.7.0
+        restart: 'unless-stopped'
+        environment:
+            - bootstrap.memory_lock=true
+            - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+            - 'discovery.type=single-node'
+            - 'indices.query.bool.max_clause_count=3000'
+            - 'path.repo=/var/tmp'
+            - 'cluster.routing.allocation.disk.threshold_enabled=false'
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
+        mem_limit: 1g
+        ports:
+            - '9200:9200'

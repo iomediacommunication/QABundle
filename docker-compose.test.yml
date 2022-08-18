@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+    db:
+        extends:
+            file: docker-services.yml
+            service: db
+    es:
+        extends:
+            file: docker-services.yml
+            service: es

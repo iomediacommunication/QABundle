@@ -1,0 +1,59 @@
+name: Quality assessment and tests
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+    qa:
+        runs-on: ${{ matrix.operating-system }}
+        strategy:
+            matrix:
+                operating-system: ['ubuntu-latest']
+                php-version: ['7.4']
+        name: QA checks for PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }}
+        steps:
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  ini-values: date.timezone=Europe/Paris,memory_limit=-1,default_socket_timeout=10,session.gc_probability=0,apc.enable_cli=1,zend.assertions=1
+
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Cache
+              uses: actions/cache@v2
+              with:
+                  path: |
+                      node_modules
+                      vendor
+                      .php-cs-fixer.cache
+                  key: ${{ runner.os }}-php
+
+            - name: Install Dependencies
+              env:
+                  COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.GH_COMPOSER_AUTH}}"} }'
+              run: COMPOSER_MEMORY_LIMIT=-1 COMPOSER_PROCESS_TIMEOUT=3000 composer install --ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+            - name: Validate composer.json
+              run: make qa-composer-validate
+
+            - name: Run docker containers
+              run: make docker-test
+
+            - name: Wait for services to be ready
+              run: sleep 30
+
+            - name: Database init
+              run: make db-init
+
+            - name: Run tests
+              run: make qa-phpunit
+
+            - name: Check security issues in dependencies
+              run: make qa-security
+
+            - name: Check PHP Coding Styles
+              run: make qa-php-cs
+
+            - name: Execute PHPStan
+              run: make qa-phpstan
